@@ -71,8 +71,12 @@ class Fila(object):
     
     
     def gerenciaFila(self):
+        """
+        executa as funcoes acima e retorna o estado do instacionameto
+        decorrido no instante de ineteresse
+        """
         self.preencheFila()
-        self.fila = self.fila[::-1]
+        self.fila = self.fila[::-1] # inverte a ordem da fila pois o primeiro a entrar é o primeiro a sair
         self.mover()
         return self.estacionamento
         
