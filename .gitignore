@@ -3,4 +3,4 @@
 .idea
 *.log
 __pycache__
-artigos/
+help/

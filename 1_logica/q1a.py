@@ -6,6 +6,7 @@
 @email: lucashnds@usp.br
 """
 
+
 def comparacao(emails: list, k: int):
     """comparacao da entrada atual com a penultima, e contagem
        dos caracteres ue podem ser economizados entre ambas, a ideia é: 
@@ -23,8 +24,8 @@ def comparacao(emails: list, k: int):
     # Elimina o dominio @usp.br que nao vai ser economizado
     emails = [i.replace('@usp.br', '') for i in emails]
 
-    # transforma a string em uma lista de caracteres, equivalende ao str.split() *N sabia se podia usar
-    # assim vai a entrada x vai ficar [['c1', 'c2', ..., 'cn'], ['c1', 'c2', ..., 'cn']]
+    # transforma a string em uma lista de caracteres, equivalende ao str.split() *N sabia se podia usar o split*
+    # assim a entrada x vai ficar [['c1', 'c2', ..., 'cn'], ['c1', 'c2', ..., 'cn'], ...]
     emails = [[char for char in email] for email  in emails]
     
     n = 0 # numero de caracteres a se economizar no email atual

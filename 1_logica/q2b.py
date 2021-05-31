@@ -45,7 +45,7 @@ class Fila(object):
         
         
     def mover(self):
-        """ usando o exemplo 2 do enunciado)
+        """ usando o exemplo 2 do enunciado:
             com a fila de carros = [0, 0, 1, 5, 0, 2, 0, 0, 4, 0, 0, 3, 0, 0, 6, 7]
             o estacionameto estaria de seguinte forma do instante 1 ate o instante
             de interesse:
@@ -96,6 +96,7 @@ def main():
                 interesse=tf)
     
     print(fila.gerenciaFila())
+    
     
 if __name__ == '__main__':
     main()
