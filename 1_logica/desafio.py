@@ -57,15 +57,7 @@ def countGrupos(grafo):
     Saida:
         (int) -> Numero de grupos
     """
-    # {1: [2, 3], 
-    #  2: [1, 3], 
-    #  3: [2, 1, 4], 
-    #  4: [3], 
-    #
-    #  5: [6, 7], 
-    #  6: [5], 
-    #  7: [5]}
-    
+
     ligacoes = []
     
     for i, item in enumerate(grafo):
