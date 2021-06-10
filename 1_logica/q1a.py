@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+
 # -*- coding: utf-8 -*-
 
 """
@@ -7,7 +7,7 @@
 """
 
 
-def comparacao(emails: list, k: int):
+def comparacao(emails, k):
     """comparacao da entrada atual com a penultima, e contagem
        dos caracteres ue podem ser economizados entre ambas, a ideia é: 
        percorrer todos os caracteres da entrada atual e comparalos com o de mesmo indice

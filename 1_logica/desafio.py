@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+
 # -*- coding: utf-8 -*-
 
 """
@@ -48,7 +48,12 @@ def preencheGrafo(grafo, arestas):
 
 def countGrupos(grafo):
     """
-    Contagem de micro grupos no grafo
+    Contagem de micro grupos no grafo fazendo um loop por cada membro e 
+    verificando na sua lista de amizades se possui algum vinculo com o membro anterior 
+    no loop ou com alguns dos gruposa anteriores ja visitados, caso possua nao faz nada
+    pois ainda é considerado um grupo de conexoes, caso o contrario incrementa a contagem de 
+    grupos, caso seja uma lsita vazia incrementa a contagem tambem pois é considerado como
+    um micro grupo
     
     Entrada:
         grafo (dict) -> {'vertice 1':[conexao 1, conexao 2, ..., conexao n], ..., 
@@ -59,7 +64,11 @@ def countGrupos(grafo):
     """
 
     ligacoes = []
+    lista_auxiliar = [] # A lista auxiliar vai guardar todos os grupos que ja foram visitados
     
+    # cria uma lista de lista com os membros se suas conexoes
+    # tipo: [[vertice 1, conexao 1, conexao 2, ..., conexao n] ...]
+    # assim o vertice (membro) é incluso na verificação de conexoes
     for i, item in enumerate(grafo):
         ligacoes.append(grafo[item])
         ligacoes[i].append(item)
@@ -77,11 +86,17 @@ def countGrupos(grafo):
             if i == 0: 
                 grupos += 1
             else:
-                if any(item in ligacao for item in ligacoes[i-1]):
+                # verifica se ha itens em comum entre o grupo visitado agora e o anterior ou entre o grupo visitado agora 
+                # e algum dos grupos ja visitados antes, pois assim evita um contagem em grupos em exesso por ter declarado
+                # uma conexao no comeco e uma outra conexao do mesmo grupo no fim dos inputs por exemplo
+                if any(item in ligacao for item in ligacoes[i-1]) or any(item in ligacao for item in lista_auxiliar):
                     pass
                 else:
                     grupos += 1
-    
+        
+        # adiciona o grupo visitado a lista de backup
+        lista_auxiliar.extend(ligacao)
+        
     return grupos
 
     
@@ -92,7 +107,7 @@ def main():
     grafo = criaGrafo(membros)
     #print(grafo)
     grafo = preencheGrafo(grafo, relacionamentos)
-    print(grafo)
+    #print(grafo)
     grupos = countGrupos(grafo)
     print(grupos)
         
