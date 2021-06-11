@@ -1,11 +1,20 @@
 ---
 title: "Random Forests (Florestas Aleatórias)"
-output: html_document
-mainfont: Times New Roman
+geometry: margin=2cm
+output:
+  html_document: default
+  pdf_document: 
+    fig_caption: yes
+    highlight: kate
+    latex_engine: pdflatex
+mainfont: Arial
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#knitr::knit_engines$set(python = reticulate::eng_python)
+library(reticulate)
+use_python('~/anaconda3/bin/python', required = TRUE)
 ```
 
 
@@ -20,13 +29,12 @@ Floresta aleatória é um método de aprendizado de máquina pertencente a class
 Mas, antes de falarmos de florestas aleatórias em si ...
 
 <center>
-<img src="imagens/calm_down.jpg" width="300" align="center">
+<img src="imagens/calm_down.jpg" width="400" align="center">
 </center>
-
 
 Vamos falar brevemente do modelo que dá origem a uma floresta aleatória...as arvores de decisão (ou decision trees).
 
-#### __Árvores de Decisão__
+## Árvores de Decisão
 
 Vamos imaginar um exemplo, uma pessoa que gosta de jogar futebol ao ar livre e, ao longo do tempo foi observado que o comparecimento dessa pessoa no jogo depende de uma série de fatores associados ao clima, como temperatura, umidade, chuva, vento, etc. Podemos representar isso com a seguinte estrutura: 
 
@@ -34,44 +42,158 @@ Vamos imaginar um exemplo, uma pessoa que gosta de jogar futebol ao ar livre e, 
 <img src="imagens/esquema_arvore_simples.jpg" width="400" align="center">
 </center>
 
-
-Esse e um exemplo relativamente rudimentar, mas que exemplifica muito bem arvores de decisão, mas só para colocar um pouco de formalidade nos termos 😊: Os pontos em que é tomada uma decisão entre qual caminho seguir são os nós (nas caixas violeta), a conexão entre esses nos são os ramos (nas setas azul marinho, com o titulo do ramo nas caixas da mesma cor), o nó inicial que inicia o processo de divisão é a raiz (Clima), os últimos nos em ramos são as folhas (nas caixas em laranja) e por fim a distância entre as folhas e a raiz é a altura da arvore (legal né?).  
+Esse e um exemplo relativamente rudimentar, mas que exemplifica muito bem arvores de decisão, mas só para colocar um pouco de formalidade nos termos: Os pontos em que é tomada uma decisão entre qual caminho seguir são os **nós** (nas caixas violeta), a conexão entre esses nos são os **ramos** (nas setas azul marinho, com o titulo do ramo nas caixas da mesma cor), o nó inicial que inicia o processo de divisão é a **raiz** (Clima), os últimos nos em ramos são as **folhas** (nas caixas em laranja) e por fim a distância entre as folhas e a raiz é a **altura** da arvore (legal né?).  
 
 Observemos que intuitivamente já vemos o funcionamento básico de uma arvore, a partir de um conjunto de informações, vamos tomando decisões a partir de parâmetros que descrevem esse conjunto e por fim chegamos em uma resposta (ou classificação) do que queremos responder. 
 
 Mas vamos incrementar um pouco as coisas e imaginar que não queremos responder se apenas uma pessoa especifica vai ao jogo, mas sim queremos um modelo que responda isso para diversas pessoas que estão em condições climáticas diferentes, e, que o nosso modelo de arvore agora é um pouco mais elaborado, como: 
 
 <center>
-<figure>
-<img src="imagens/esquema_arvore_maior.jpg" width="600" align="center">
-    <figcaption></figcaption>
-</figure>
+<img src="imagens/esquema_arvore_maior.jpg" width="800" align="center">
 </center>
 
 
-Sim, um pouco exagerado, mas, agora que os nós em que decidimos qual ramo seguir ficam tão específicos, conforme a altura da arvore aumentou, que acabamos ajustando nosso modelo para uma situação par locais muito específicos, e com isso acabamos falhando no objetivo que era um modelo genérico 😕. 
+Vemos agora que os nós em que decidimos qual ramo seguir ficam um pouco mais específicos, conforme a altura da arvore aumentou, e acabamos ajustando nosso modelo para condições específicas, e com isso acabamos falhando no objetivo que era um modelo genérico. 
 
 Então, como corrigir isso? 
 
-Bom existem diversas maneiras, mas vamos seguir por uma delas, e, imaginar um modelo que não se baseasse em uma única arvore, mas várias, em que cada uma vai ser parametrizada com dados (nós) aleatórios que dividem bem nosso conjunto de dados, ou seja, não vamos ter a classificação baseada em uma única arvores, mas um conjunto delas, ou ... uma floresta 😀. 
+Bom existem diversas maneiras, mas vamos seguir por uma delas, e, imaginar um modelo que não se baseasse em uma única arvore, mas várias, em que cada uma vai ser parametrizada com dados (nós) aleatórios que dividem bem nosso conjunto de dados, ou seja, não vamos ter a classificação baseada em uma única arvores, mas um conjunto delas, ou ... uma floresta. 
 
 <center>
-<img src="imagens/tcharam.jpg" width="300" align="center">
+<img src="imagens/tcharam.jpg" width="400" align="center">
+</center>
+
+## __Florestas Aleatórias__
+
+
+Finalmente chegamos então ao modelo de florestas aleatórias, que assim como arvores de decisão pode ser usado para classificação ou regressão, e, para criarmos um modelo assim, uma das maneiras é quebrar nosso conjunto de dados em vários conjuntos menores, e, a partir deles criar uma série de arvores de decisão distintas, e a resposta desse modelo é a moda das respostas das arvores que o compõe para os casos de classificação e a média para os caso de regressão.  
+
+E para reduzirmos o ajuste excessivo dos dados a uma única situação, na criação das arvores de decisão usamos um método estocástico (uma palavra bonita pra aleatório) na escolha dos parâmetros que formam os nós, ou seja, escolhemos aleatoriamente, mas de maneira que os dados ficam bem divididos (para isso tem algumas funções matemáticas que conduzem esse processo), os pontos em que tomamos a decisão de qual ramo seguir. 
+ 
+Mas ainda ficamos com um problema, quando dividimos nosso conjunto de dados em n partes, geralmente ficamos com um conjunto muito pequeno de dados em relação ao original e por isso o desempenho das arvores que compõem o modelo tende a não ser muito bom, mas, a estatística nos ajuda a resolver isso com uma técnica chamada bagging que consiste muito resumidamente em reconstruir um conjunto em função da pequena amostra e depois dividir esse conjunto em novas n amostras, ou seja, para cada arvore do modelo, reconstruímos um conjunto a partir de sua respectiva amostra. 
+
+Então, recapitulando, o algoritmo pra se criar um modelo de floresta aleatórias com n arvores decisão é: 
+
+* Fazemos uma amostragem dos dados utilizando bagging, vamos chamar esse conjunto de amostras de A; 
+* Para cada amostra *a* em A, selecionamos J variáveis como parâmetros para o nosso modelo; 
+* Fazemos uma arvore de classificação utilizando a amostra *a* com os parâmetros J; 
+* Armazenamos a resposta da arvore da amostra *a* em uma lista *v* 
+* Repetimos n vezes esse processo; 
+* Tiramos a média ou a moda da lista *v* como saidas do modelo
+
+
+Para finalizar entao eu deixo aqui em baixo também um exemplo simples para classificação utilizando florestas aleatórias, ja que ao utilizarmos bibliotecas temos todos esses conceitos já abstraídos em algoritmos computacionais.
+
+```{python}
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot as plt
+import seaborn as sns
+from sklearn import datasets
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+
+# Vamos trabalhasr com dataset iris, disponibilizado pela lib do sklearn
+# https://scikit-learn.org/stable/auto_examples/datasets/plot_iris_dataset.html
+# Nesse conjunto tempos um classificaçao de especies da flor iris em funcao de 
+# algumas caracteristicas como tamnho e larguras das petalas e sépalas
+# a ideia é usar essa info para um modelo simples de florestas aleatorias
+# e arvores de decisao e verificar seus respectivos desempenhos
+
+iris = datasets.load_iris()
+
+print(iris.target_names)
+print(iris.feature_names)
+
+df_iris = \
+pd.DataFrame({
+    'comp_sepala':iris.data[:,0],
+    'larg_sepala':iris.data[:,1],
+    'comp_petala':iris.data[:,2],
+    'larg_petala':iris.data[:,3],
+    'especie':iris.target
+})
+
+# Features do modelo, ou seja caracteristicas que determinam a especies, 
+# que é oque queremos classifircar: 
+X = df_iris[['comp_sepala', 
+             'larg_sepala', 
+             'comp_petala', 
+             'larg_petala']]  
+
+# especie a ser determinada pelas features
+y = df_iris['especie']  
+
+# Separa os de features e labels (X, y) no padrao 70% para terinamento 
+# do modelo e 30% para teste da performace
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) 
+
+# Inicializamos um classificador de florestas aleatorias que vai usar a 
+# média de 200 arvores de decisão
+rf = RandomForestClassifier(n_estimators=200)
+
+# Inicializamos um classificador usando arvores de decisão
+dt = DecisionTreeClassifier()
+
+#Treinamento dos modelos:
+rf.fit(X_train,y_train) 
+dt.fit(X_train,y_train) 
+
+#predicoes usando o conjunto de testes:
+pred_rf = rf.predict(X_test) 
+pred_dt = dt.predict(X_test) 
+
+#Vamos usar um metodo simples de vericar modelos, a acuracia, que mede 
+#a proporcao entre acertos e erros do modelo no conjuto de teste
+acc_rf = metrics.accuracy_score(y_test, pred_rf)
+acc_dt = metrics.accuracy_score(y_test, pred_dt)
+
+# Faznedo a predicao para uma iris com sepala de 3 cm de comprimento por 5 cm 
+# de largura e pelatas de 4 cm de comprimento por 2 cm de largura 
+especie_rf = rf.predict([[3, 5, 4, 2]])[0]
+especie_dt = dt.predict([[3, 5, 4, 2]])[0]
+
+print(f'Por Random Forest essa é uma iris da espécie: {iris.target_names[especie_rf]}')
+print(f'Por Arvores de decisao essa é uma iris da espécie: {iris.target_names[especie_dt]}')
+
+print(f'A acuracia do modelo Random Forest é: {round(acc_rf, 2)*100}% e com Arvores de decisao: {round(acc_dt, 2)*100}%')
+
+# Matriz de confusao
+# Os ticks dos labels sao:
+# 0 = setosa
+# 1 = versicolor
+# 2 = virginica
+
+g = sns.heatmap(metrics.confusion_matrix(y_test, pred_rf), annot=True, cmap=sns.diverging_palette(220, 20, as_cmap=True), fmt='d')
+p = g.set_title('rf')
+p = g.set_xlabel('Predito')
+p = g.set_ylabel('Real')
+plt.show()
+
+g = sns.heatmap(metrics.confusion_matrix(y_test, pred_dt), annot=True, cmap=sns.diverging_palette(220, 20, as_cmap=True), fmt='d')
+p = g.set_title('dt')
+p = g.set_xlabel('Predito')
+p = g.set_ylabel('Real')
+plt.show()
+```
+
+
+__É isso gente, espero que tenham gostado!!!__
+
+<center>
+<img src="imagens/fim.png" width="400" align="center">
 </center>
 
 
-#### __Florestas Aleatórias__
-
-Finalmente chegamos então ao modelo de florestas aleatórias, que assim como arvores de decisão pode ser usado para classificação ou regressão, e, para criarmos um modelo assim, uma das maneiras é quebrar nosso conjunto de dados em vários conjuntos menores, e, a partir deles criar uma série de arvores de decisão distintas, e a resposta desse modelo é geralmente a média das respostas das arvores que o compõe.  
-
-E para reduzirmos o ajuste excessivo dos dados a uma única situação, na criação das arvores de decisão usamos um método estocástico (uma palavra bonita pra aleatório 😊) na escolha dos parâmetros que formam os nós, ou seja, escolhemos aleatoriamente, mas de maneira que os dados ficam bem divididos (para isso tem algumas funções matemáticas que conduzem esse processo), os pontos em que tomamos a decisão de qual ramo seguir. 
-
-# Referências:
+## Referências:
 - Artigos Web:
     * [Turing Talks - Modelos de Predição: Random Forest](https://medium.com/turing-talks/turing-talks-18-modelos-de-predi%C3%A7%C3%A3o-random-forest-cfc91cd8e524)
     * [Turing Talks - Modelos de Predição: Introdução à Predição](https://medium.com/turing-talks/turing-talks-10-introdu%C3%A7%C3%A3o-%C3%A0-predi%C3%A7%C3%A3o-a75cd61c268d)
     * [Turing Talks - Modelos de Predição: Decision Tree](https://medium.com/turing-talks/turing-talks-17-modelos-de-predi%C3%A7%C3%A3o-decision-tree-610aa484cb05)
-    
+    * [Aprendendo em uma Floresta Aleatória](https://medium.com/machina-sapiens/o-algoritmo-da-floresta-aleat%C3%B3ria-3545f6babdf8)
+    * [Turing Talks - Como Avaliar Seu Modelo de Classificação](https://medium.com/turing-talks/como-avaliar-seu-modelo-de-classifica%C3%A7%C3%A3o-acd2a03690e)
     
 - Livro: 
     * James, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An introduction to statistical learning (1st ed.) [PDF]. Springer. Cap. 8 (Tree-Based Methods)
@@ -80,5 +202,5 @@ E para reduzirmos o ajuste excessivo dos dados a uma única situação, na cria�
 - Fonte das imagens:
     * [Figura 1](https://unsplash.com/s/photos/tree)
     * [Figura 2](https://dontcallmejeh.tumblr.com/)
-    * Figuras 3 e 4 eu criei no canvas baseado no modelo do livro citado acima
+    * Figuras 3 e 4 eu criei no canvas baseado no exemplo do livro citado acima
     * [Figura 5](https://aminoapps.com/c/armyaminobr/page/blog/tcharam/lla3_BkSQugnbL2ZldBmQXD21gvLLG1m0K)
